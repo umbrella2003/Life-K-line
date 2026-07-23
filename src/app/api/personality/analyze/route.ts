@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { orderId } = schema.parse(body);
 
-    const order = getOrder(orderId);
+    const order = await getOrder(orderId);
     if (!order || order.type !== "personality") {
       return NextResponse.json({ error: "订单不存在" }, { status: 404 });
     }

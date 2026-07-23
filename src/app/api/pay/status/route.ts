@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   if (!orderId) {
     return NextResponse.json({ error: "缺少 orderId" }, { status: 400 });
   }
-  const order = getOrder(orderId);
+  const order = await getOrder(orderId);
   if (!order) {
     return NextResponse.json({ error: "订单不存在" }, { status: 404 });
   }

@@ -35,6 +35,18 @@ npm run dev
 
 默认 `.env` 中 `PAY_DEV_MODE=true`,此时点击"开通 AI 解读"会**跳过真实支付**,下单即视为已支付,方便本地调试整条链路(排盘 → 支付 → AI解读)。真正上线前请务必将其改为 `false`,并按下方说明配置真实的支付与大模型密钥。
 
+## 部署到 Vercel(体验/试用,先不接真实支付)
+
+1. Fork 或直接在 [Vercel](https://vercel.com) 用 "Import Project" 导入这个 GitHub 仓库,框架会自动识别为 Next.js,无需额外配置构建命令。
+2. 在项目的 Environment Variables 里至少配置:
+   - `DEEPSEEK_API_KEY`(否则点击付费解锁会报错)
+   - `PAY_DEV_MODE=true`(先不接真实支付,体验完整链路)
+   - `APP_BASE_URL` 填 Vercel 分配的域名(如 `https://your-app.vercel.app`)
+3. **订单存储**:Vercel 是无持久化文件系统的 serverless 平台,直接用默认的本地文件存储会在生产环境写入失败。请在 Vercel 项目的 **Storage** 标签页新建一个 KV/Redis 数据库(选 Upstash for Redis 之类的集成即可,免费额度足够体验用),挂载后 Vercel 会自动把 `KV_REST_API_URL`/`KV_REST_API_TOKEN` 注入到环境变量,代码检测到这两个变量存在时会自动切换到 KV 存储订单,不用改代码。
+4. 保存环境变量后触发一次部署(Deploy),之后每次 `git push` 到 `main` 分支会自动重新部署。
+
+`PAY_DEV_MODE=true` 下所有人点击"开通 AI 解读"都会直接跳过支付、立即拿到 AI 解读,适合先给自己或朋友体验完整流程。等确定要收真实费用时,再按下方"配置微信支付"/"配置支付宝"两节申请真实商户号,并把 `PAY_DEV_MODE` 改成 `false`。
+
 ## 配置 DeepSeek
 
 在 `.env` 中设置:
@@ -146,7 +158,7 @@ src/
     wuxing.ts                五行生克关系与打分(含零均值基线修正)
     prompts.ts                喂给 DeepSeek 的九套提示词构造(八字/易经/紫微/塔罗/占星/数字命理/人格/大五人格/职场性格)
     deepseek.ts              DeepSeek Chat Completions 调用
-    order.ts / db.ts         订单存取(本地 JSON 文件,data/orders.json)
+    order.ts / db.ts         订单存取(默认本地 JSON 文件 data/orders.json;检测到 KV_REST_API_URL 时自动切换到 Vercel KV,适配 serverless 部署)
     payment/wechat.ts        微信支付 v3 Native 下单/验签/解密
     payment/alipay.ts        支付宝扫码下单/通知验签
   components/

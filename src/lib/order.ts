@@ -84,7 +84,7 @@ export async function createOrder(
   return order;
 }
 
-export function getOrder(id: string): OrderRecord | undefined {
+export async function getOrder(id: string): Promise<OrderRecord | undefined> {
   return findOrderById(id);
 }
 
@@ -92,7 +92,7 @@ export async function markPaidByOutTradeNo(
   outTradeNo: string,
   provider: OrderRecord["provider"]
 ): Promise<OrderRecord | null> {
-  const order = findOrderByOutTradeNo(outTradeNo);
+  const order = await findOrderByOutTradeNo(outTradeNo);
   if (!order) return null;
   if (order.status === "paid") return order;
   return updateOrderById(order.id, {

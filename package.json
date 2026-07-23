@@ -14,6 +14,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vercel/kv": "^2.0.0",
     "alipay-sdk": "^4.14.0",
     "astronomy-engine": "^2.1.19",
     "iztro": "^2.5.8",
